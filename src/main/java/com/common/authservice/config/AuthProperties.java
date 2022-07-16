@@ -21,5 +21,13 @@ public class AuthProperties {
 
     private String iss;
 
+    private Integer tokenValiditySeconds = 60 * 60;
+
+    private Integer refreshTokenValiditySeconds = 5 * 60 * 60;
+
+    private Boolean reuseRefreshToken = false;
+
+    private Boolean supportRefreshToken = true;
+
     private List<String> grantType = Arrays.asList("password", "refresh_token");
 }

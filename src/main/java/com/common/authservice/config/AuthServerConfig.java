@@ -3,6 +3,7 @@ package com.common.authservice.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.builders.ClientDetailsServiceBuilder;
 import org.springframework.security.oauth2.config.annotation.builders.InMemoryClientDetailsServiceBuilder;
@@ -23,9 +24,11 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
 
     private final AuthenticationManager authenticationManager;
 
-    private final DefaultTokenServices tokenService;
+    private final UserDetailsService userDetailsService;
 
     private final AuthProperties authProperties;
+
+    private final DefaultTokenServices tokenService;
 
     @Override
     public void configure(ClientDetailsServiceConfigurer clients)
@@ -34,8 +37,8 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
                 .withClient(authProperties.getDefaultClient())
                 .secret(this.passwordEncoder.encode(authProperties.getDefaultSecret()))
                 .scopes("read", "write", "execute")
-                .accessTokenValiditySeconds(24 * 60 * 60)
-                .refreshTokenValiditySeconds(24 * 60 * 60);
+                .accessTokenValiditySeconds(authProperties.getTokenValiditySeconds())
+                .refreshTokenValiditySeconds(authProperties.getRefreshTokenValiditySeconds());
         authProperties.getGrantType().forEach(clientBuilder::authorizedGrantTypes);
     }
 
@@ -48,6 +51,7 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
         endpoints.authenticationManager(this.authenticationManager)
+                .userDetailsService(this.userDetailsService)
                 .tokenServices(this.tokenService);
     }
 }
