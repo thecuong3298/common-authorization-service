@@ -17,7 +17,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
-import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
+import org.springframework.security.oauth2.provider.token.TokenEnhancer;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
 import javax.servlet.http.HttpServletResponse;
@@ -32,6 +33,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserDetailsService userDetailsService;
 
     private final AuthProperties authProperties;
+
+    private final TokenStore tokenStore;
+
+    private final TokenEnhancer tokenEnhancer;
 
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
@@ -75,7 +80,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         defaultTokenServices.setReuseRefreshToken(authProperties.getReuseRefreshToken());
         defaultTokenServices.setAccessTokenValiditySeconds(authProperties.getTokenValiditySeconds());
         defaultTokenServices.setRefreshTokenValiditySeconds(authProperties.getRefreshTokenValiditySeconds());
-        defaultTokenServices.setTokenStore(new InMemoryTokenStore());
+        defaultTokenServices.setTokenStore(tokenStore);
+        defaultTokenServices.setTokenEnhancer(tokenEnhancer);
         return defaultTokenServices;
     }
 
