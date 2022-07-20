@@ -15,19 +15,23 @@ import java.util.List;
 @Configuration
 @ConfigurationProperties(prefix = "spring.security.oauth2", ignoreUnknownFields = false)
 public class AuthProperties {
-    private String defaultClient;
+  private String defaultClient;
 
-    private String defaultSecret;
+  private String defaultSecret;
 
-    private String iss;
+  private String iss;
 
-    private Integer tokenValiditySeconds = 60 * 60;
+  private Integer tokenValiditySeconds = 60 * 60;
 
-    private Integer refreshTokenValiditySeconds = 5 * 60 * 60;
+  private Integer refreshTokenValiditySeconds = 5 * 60 * 60;
 
-    private Boolean reuseRefreshToken = false;
+  private Boolean reuseRefreshToken = false;
 
-    private Boolean supportRefreshToken = true;
+  private Boolean supportRefreshToken = true;
 
-    private List<String> grantType = Arrays.asList("password", "refresh_token");
+  private List<String> grantType = Arrays.asList("password", "refresh_token");
+
+  private Boolean setCookie = false;
+
+  private Boolean cookieSecure = false;
 }

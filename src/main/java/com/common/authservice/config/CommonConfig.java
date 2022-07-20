@@ -17,28 +17,29 @@ import org.springframework.security.oauth2.provider.token.store.InMemoryTokenSto
 @Configuration
 public class CommonConfig {
 
-    private final UserDetailsService userDetailsService;
+  private final UserDetailsService userDetailsService;
 
-    @Bean
-    public TokenStore tokenStore() {
-        return new InMemoryTokenStore();
-    }
+  @Bean
+  public TokenStore tokenStore() {
+    return new InMemoryTokenStore();
+  }
 
-    @Bean
-    public TokenEnhancer tokenEnhancer() {
-        return (oAuth2AccessToken, oAuth2Authentication) -> new DefaultOAuth2AccessToken(oAuth2AccessToken);
-    }
+  @Bean
+  public TokenEnhancer tokenEnhancer() {
+    return (oAuth2AccessToken, oAuth2Authentication) ->
+        new DefaultOAuth2AccessToken(oAuth2AccessToken);
+  }
 
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(this.userDetailsService);
-        authenticationProvider.setPasswordEncoder(this.passwordEncoder());
-        return authenticationProvider;
-    }
+  @Bean
+  public DaoAuthenticationProvider authenticationProvider() {
+    DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+    authenticationProvider.setUserDetailsService(this.userDetailsService);
+    authenticationProvider.setPasswordEncoder(this.passwordEncoder());
+    return authenticationProvider;
+  }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(4);
-    }
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder(4);
+  }
 }

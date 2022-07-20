@@ -13,7 +13,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenStore;
@@ -28,58 +27,59 @@ import javax.servlet.http.HttpServletResponse;
 @EnableGlobalMethodSecurity(prePostEnabled = true, order = Ordered.HIGHEST_PRECEDENCE)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final AuthProperties authProperties;
+  private final AuthProperties authProperties;
 
-    private final TokenStore tokenStore;
+  private final TokenStore tokenStore;
 
-    private final TokenEnhancer tokenEnhancer;
+  private final TokenEnhancer tokenEnhancer;
 
-    private final DaoAuthenticationProvider authenticationProvider;
+  private final DaoAuthenticationProvider authenticationProvider;
 
-    @Override
-    protected void configure(final HttpSecurity http) throws Exception {
-        http.requiresChannel()
-                .requestMatchers(r -> r.getHeader("X-Forwarded-Proto") != null)
-                .requiresSecure().and()
-                .anonymous().and()
-                .authorizeRequests()
-                .anyRequest().permitAll().and()
-                .csrf().disable()
-                .cors()
-                .and()
-                .exceptionHandling()
-                .authenticationEntryPoint(unauthorizedEntryPoint())
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-    }
+  @Override
+  protected void configure(final HttpSecurity http) throws Exception {
+    http.formLogin()
+        .disable()
+        .authorizeRequests()
+        .anyRequest()
+        .permitAll()
+        .and()
+        .csrf()
+        .disable()
+        .cors().disable()
+        .exceptionHandling()
+        .authenticationEntryPoint(unauthorizedEntryPoint());
+  }
 
-    @Bean
-    @Primary
-    public AuthenticationEntryPoint unauthorizedEntryPoint() {
-        return (request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, HttpStatus.UNAUTHORIZED.getReasonPhrase());
-    }
+  @Bean
+  @Primary
+  public AuthenticationEntryPoint unauthorizedEntryPoint() {
+    return (request, response, authException) ->
+        response.sendError(
+            HttpServletResponse.SC_UNAUTHORIZED, HttpStatus.UNAUTHORIZED.getReasonPhrase());
+  }
 
-    @Override
-    @Bean
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
-    }
+  @Override
+  @Bean
+  public AuthenticationManager authenticationManagerBean() throws Exception {
+    return super.authenticationManagerBean();
+  }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) {
-        auth.authenticationProvider(authenticationProvider);
-    }
+  @Override
+  protected void configure(AuthenticationManagerBuilder auth) {
+    auth.authenticationProvider(authenticationProvider);
+  }
 
-    @Bean
-    public DefaultTokenServices tokenServices() {
-        DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
-        defaultTokenServices.setSupportRefreshToken(authProperties.getSupportRefreshToken());
-        defaultTokenServices.setReuseRefreshToken(authProperties.getReuseRefreshToken());
-        defaultTokenServices.setAccessTokenValiditySeconds(authProperties.getTokenValiditySeconds());
-        defaultTokenServices.setRefreshTokenValiditySeconds(authProperties.getRefreshTokenValiditySeconds());
-        defaultTokenServices.setTokenStore(tokenStore);
-        defaultTokenServices.setTokenEnhancer(tokenEnhancer);
-        return defaultTokenServices;
-    }
+  @Bean
+  public DefaultTokenServices tokenServices() {
+    DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
+    defaultTokenServices.setSupportRefreshToken(authProperties.getSupportRefreshToken());
+    defaultTokenServices.setReuseRefreshToken(authProperties.getReuseRefreshToken());
+    defaultTokenServices.setAccessTokenValiditySeconds(authProperties.getTokenValiditySeconds());
+    defaultTokenServices.setRefreshTokenValiditySeconds(
+        authProperties.getRefreshTokenValiditySeconds());
+    defaultTokenServices.setTokenStore(tokenStore);
+    defaultTokenServices.setTokenEnhancer(tokenEnhancer);
+    return defaultTokenServices;
+  }
+
 }

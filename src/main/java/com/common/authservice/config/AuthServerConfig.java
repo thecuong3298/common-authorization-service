@@ -20,38 +20,39 @@ import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 @SuppressWarnings("deprecation")
 public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
 
-    private final PasswordEncoder passwordEncoder;
+  private final PasswordEncoder passwordEncoder;
 
-    private final AuthenticationManager authenticationManager;
+  private final AuthenticationManager authenticationManager;
 
-    private final UserDetailsService userDetailsService;
+  private final UserDetailsService userDetailsService;
 
-    private final AuthProperties authProperties;
+  private final AuthProperties authProperties;
 
-    private final DefaultTokenServices tokenService;
+  private final DefaultTokenServices tokenService;
 
-    @Override
-    public void configure(ClientDetailsServiceConfigurer clients)
-            throws Exception {
-        ClientDetailsServiceBuilder<InMemoryClientDetailsServiceBuilder>.ClientBuilder clientBuilder = clients.inMemory()
-                .withClient(authProperties.getDefaultClient())
-                .secret(this.passwordEncoder.encode(authProperties.getDefaultSecret()))
-                .scopes("read", "write", "execute")
-                .accessTokenValiditySeconds(authProperties.getTokenValiditySeconds())
-                .refreshTokenValiditySeconds(authProperties.getRefreshTokenValiditySeconds());
-        authProperties.getGrantType().forEach(clientBuilder::authorizedGrantTypes);
-    }
+  @Override
+  public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
+    ClientDetailsServiceBuilder<InMemoryClientDetailsServiceBuilder>.ClientBuilder clientBuilder =
+        clients
+            .inMemory()
+            .withClient(authProperties.getDefaultClient())
+            .secret(this.passwordEncoder.encode(authProperties.getDefaultSecret()))
+            .scopes("read", "write", "execute")
+            .accessTokenValiditySeconds(authProperties.getTokenValiditySeconds())
+            .refreshTokenValiditySeconds(authProperties.getRefreshTokenValiditySeconds());
+    authProperties.getGrantType().forEach(clientBuilder::authorizedGrantTypes);
+  }
 
-    @Override
-    public void configure(AuthorizationServerSecurityConfigurer oauthServer)
-    {
-        oauthServer.checkTokenAccess("isAuthenticated()");
-    }
+  @Override
+  public void configure(AuthorizationServerSecurityConfigurer oauthServer) {
+    oauthServer.checkTokenAccess("isAuthenticated()");
+  }
 
-    @Override
-    public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
-        endpoints.authenticationManager(this.authenticationManager)
-                .userDetailsService(this.userDetailsService)
-                .tokenServices(this.tokenService);
-    }
+  @Override
+  public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
+    endpoints
+        .authenticationManager(this.authenticationManager)
+        .userDetailsService(this.userDetailsService)
+        .tokenServices(this.tokenService);
+  }
 }
